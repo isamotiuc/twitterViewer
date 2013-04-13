@@ -9,7 +9,7 @@
         android:id="@+id/listView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/btnlogIn"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true" >
 
@@ -32,5 +32,25 @@
         android:layout_alignParentRight="true"
         android:onClick="refreshBtn_Click"
         android:text="Refresh" />
+
+    <Button
+        android:id="@+id/btnPrevious"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/btnlogIn"
+        android:onClick="previousPageBtn_Click"
+        android:text="Previous"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/listView1"
+        android:layout_toLeftOf="@+id/btnRefreshTimeLine"
+        android:layout_toRightOf="@+id/btnPrevious"
+        android:onClick="nextPageBtn_Click"
+        android:text="Next" />
 
 </RelativeLayout>
