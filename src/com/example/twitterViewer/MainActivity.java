@@ -9,9 +9,6 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONArray;
 
 import android.app.Activity;
@@ -60,14 +57,27 @@ public class MainActivity extends Activity {
 					Toast.LENGTH_LONG).show();
 		}
 		else{
-			GetTimeLine mt;
-			mt = new GetTimeLine();
-			mt.execute();
+			
+			SharedPreferences settings = getBaseContext().getSharedPreferences(
+					"your_app_prefs", 0);
+			userKey = settings.getString("user_key", "");
+			userSecret = settings.getString("user_secret", "");
+			
+			if(userKey.equals("")){
+				OpenOauth mt;
+				mt = new OpenOauth();
+				mt.execute();
+			}
+			else{
+				GetTimeLine mt;
+				mt = new GetTimeLine();
+				mt.execute();
+			}
 		}
 
 	}
 
-	public void tweetBtn_Click(View v) {
+	public void logintBtn_Click(View v) {
 		if (!isOnline()) {
 			Toast.makeText(getApplicationContext(), "No internet connection",
 					Toast.LENGTH_LONG).show();
@@ -75,13 +85,11 @@ public class MainActivity extends Activity {
 		} else {
 			OpenOauth mt;
 			mt = new OpenOauth();
-			mt.execute(v);
+			mt.execute();
 		}
 	}
 
-	
-
-	public void showBtn_Click(View v) {
+	public void refreshBtn_Click(View v) {
 		if (!isOnline()) {
 			Toast.makeText(getApplicationContext(), "No internet connection",
 					Toast.LENGTH_LONG).show();
@@ -95,7 +103,7 @@ public class MainActivity extends Activity {
 
 	}
 
-	class OpenOauth extends AsyncTask<View, Void, Void> {
+	class OpenOauth extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		protected void onPreExecute() {
@@ -110,7 +118,7 @@ public class MainActivity extends Activity {
 		}
 
 		@Override
-		protected Void doInBackground(View... v) {
+		protected Void doInBackground(Void... v) {
 			try {
 				StrictMode.enableDefaults();
 				String authUrl = httpOauthprovider.retrieveRequestToken(httpOauthConsumer, CALLBACKURL);
@@ -129,13 +137,6 @@ public class MainActivity extends Activity {
 	}
 
 	class GetUserKeys extends AsyncTask<String, Void, Void> {
-
-		@Override
-		protected void onPreExecute() {
-//			MainActivity.this.progressDialog = ProgressDialog.show(
-//					MainActivity.this, "", "Loading...", true);
-			super.onPreExecute();
-		}
 
 		@Override
 		protected Void doInBackground(String... verifier) {
@@ -175,43 +176,60 @@ public class MainActivity extends Activity {
 			mt = new GetTimeLine();
 			mt.execute();
 			
-//			MainActivity.this.progressDialog.dismiss();
 		}
 	}
 
+	
+	
 	class GetTimeLine extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		protected void onPreExecute() {
 			MainActivity.this.progressDialog = ProgressDialog.show(
-					MainActivity.this, "", "Loading...", true);
+					MainActivity.this, "", "Refreshing...", true);
 			SharedPreferences settings = getBaseContext().getSharedPreferences(
 					"your_app_prefs", 0);
 			userKey = settings.getString("user_key", "");
 			userSecret = settings.getString("user_secret", "");
-			Log.w("oauth fail", "key111  " + userKey);
-			Log.w("oauth fail", "secret111  " + userSecret);
+			Log.w("oauth fail", "key  " + userKey);
+			Log.w("oauth fail", "secret  " + userSecret);
+			
+			
+
+            
 			super.onPreExecute();
 		}
 
 		@Override
-		protected Void doInBackground(Void... vd) {
+		protected Void doInBackground(Void... p) {
+			
 			try {
-
-				HttpGet get = new HttpGet("http://api.twitter.com/1/statuses/home_timeline.json");
-				HttpParams params = new BasicHttpParams();
-				HttpProtocolParams.setUseExpectContinue(params, false);
-				get.setParams(params);
 				
-				httpOauthConsumer.setTokenWithSecret(userKey, userSecret);
-				httpOauthConsumer.sign(get);
 
-				DefaultHttpClient client = new DefaultHttpClient();
-				String response = client.execute(get,
-						new BasicResponseHandler());
-				Log.w("oauth fail", "response" + response);
-				JSONArray array = new JSONArray(response);
+				DefaultHttpClient mClient = new DefaultHttpClient();
+				httpOauthConsumer.setTokenWithSecret(userKey, userSecret);
+				
+				JSONArray array = new JSONArray();
+				
+
+                Uri sUri = Uri.parse("http://api.twitter.com/1/statuses/home_timeline.json");
+                Uri.Builder builder = sUri.buildUpon();
+                
+//              builder.appendQueryParameter("since_id", null); 
+//              builder.appendQueryParameter("max_id", null);
+                builder.appendQueryParameter("count", "150");
+//              builder.appendQueryParameter("page", null);
+                HttpGet get = new HttpGet(builder.build().toString());
+
+                httpOauthConsumer.sign(get);
+                String response = mClient.execute(get, new BasicResponseHandler());
+	            
+                array = new JSONArray(response);
+   
+				Log.w("oauth fail", "get  " + get);
+											
 				stringarray.clear();
+				
 				for (int i = 0; i < array.length(); i++) {
 					// int id=array.getJSONObject(i).getInt("id");
 					String name = array.getJSONObject(i).getString("text");
@@ -239,6 +257,8 @@ public class MainActivity extends Activity {
 
 	}
 
+	
+	
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
@@ -269,13 +289,9 @@ public class MainActivity extends Activity {
 	}
 	
 	public void onBackPressed()
-	{
-		
-		finish();
-        
+	{	
+		finish();     
 	}
-	
-
 
 }
 
