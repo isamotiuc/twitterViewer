@@ -8,7 +8,10 @@
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Twitter Login" />
+        android:background="@color/BlueColor"
+        android:gravity="center_horizontal"
+        android:text="Twitter Login"
+        android:textColor="@color/WhiteColor" />
 
     <WebView
         android:id="@+id/webView1"

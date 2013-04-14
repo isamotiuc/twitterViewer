@@ -121,10 +121,25 @@ public class MainActivity extends Activity {
 			GetTimeLine mt;
 			mt = new GetTimeLine();
 			mt.execute();
+			
 		}
 
 	}
 
+	public void previousPageBtn_Click(View v) {
+		if (!isOnline()) {
+			Toast.makeText(getApplicationContext(), "No internet connection",
+					Toast.LENGTH_LONG).show();
+
+		} else {
+			btnPreviousVis(false);
+			GetTimeLine mt;
+			mt = new GetTimeLine();
+			mt.execute();
+		}
+
+	}
+	
 	public void btnPreviousVis(boolean b){
 		Button btnPrevious = (Button)findViewById(R.id.btnPrevious);
 		btnPrevious.setVisibility(View.VISIBLE);
@@ -140,19 +155,7 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	public void previousPageBtn_Click(View v) {
-		if (!isOnline()) {
-			Toast.makeText(getApplicationContext(), "No internet connection",
-					Toast.LENGTH_LONG).show();
-
-		} else {
-			btnPreviousVis(false);
-			GetTimeLine mt;
-			mt = new GetTimeLine();
-			mt.execute();
-		}
-
-	}
+	
 	class OpenOauth extends AsyncTask<Void, Void, Void> {
 
 		@Override

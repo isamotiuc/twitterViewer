@@ -2,5 +2,7 @@
 <resources>
 
     <string name="app_name">TwitterViewer</string>
+    <color name="BlueColor">#4a9aff</color>
+    <color name="WhiteColor">#eaeaff</color>
 
 </resources>

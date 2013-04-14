@@ -9,48 +9,59 @@
         android:id="@+id/listView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/btnlogIn"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" >
+        android:layout_above="@+id/RelativeLa"
+        android:layout_alignParentLeft="true" >
 
     </ListView>
 
-    <Button
-        android:id="@+id/btnlogIn"
+    <RelativeLayout
+        android:id="@+id/RelativeLa"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:onClick="logintBtn_Click"
-        android:text="LogIn New" />
-
-    <Button
-        android:id="@+id/btnRefreshTimeLine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:onClick="refreshBtn_Click"
-        android:text="Refresh" />
+        android:background="@color/BlueColor" >
 
-    <Button
-        android:id="@+id/btnPrevious"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/btnlogIn"
-        android:onClick="previousPageBtn_Click"
-        android:text="Previous"
-        android:visibility="invisible" />
+        <Button
+            android:id="@+id/btnRefreshTimeLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/button_selector_refresh"
+            android:onClick="refreshBtn_Click" />
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/listView1"
-        android:layout_toLeftOf="@+id/btnRefreshTimeLine"
-        android:layout_toRightOf="@+id/btnPrevious"
-        android:onClick="nextPageBtn_Click"
-        android:text="Next" />
+        <Button
+            android:id="@+id/btnlogIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/button_selector_new"
+            android:onClick="logintBtn_Click" />
+
+        <Button
+            android:id="@+id/btnPrevious"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="27dp"
+            android:layout_toRightOf="@+id/btnlogIn"
+            android:background="@drawable/button_selector_previous"
+            android:onClick="previousPageBtn_Click"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="27dp"
+            android:layout_toLeftOf="@+id/btnRefreshTimeLine"
+            android:background="@drawable/button_selector_next"
+            android:onClick="nextPageBtn_Click" />
+
+    </RelativeLayout>
 
 </RelativeLayout>
