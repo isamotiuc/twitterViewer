@@ -1,5 +1,8 @@
 package com.example.twitterViewer;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +23,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -32,7 +39,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-
 public class MainActivity extends Activity {
 
 	String userKey;
@@ -41,8 +47,9 @@ public class MainActivity extends Activity {
 	ArrayList<MessageDetails> details = new ArrayList<MessageDetails>();
 	ListView msgList;
 	MessageDetails Detail;
+	int[] colors = new int[2];
 	int page = 1;
-	
+
 	private String CALLBACKURL = "app://twitter";
 	private String consumerKey = "x46JM8cJFabpdUlftDRHJg";
 	private String consumerSecret = "8PMnaWNeX6pqhsgDBQAxOA8kpWQdjr8XmngiwDQEZE0";
@@ -51,7 +58,8 @@ public class MainActivity extends Activity {
 			"https://api.twitter.com/oauth/request_token",
 			"https://api.twitter.com/oauth/access_token",
 			"https://api.twitter.com/oauth/authorize");
-	private CommonsHttpOAuthConsumer httpOauthConsumer = new CommonsHttpOAuthConsumer(consumerKey, consumerSecret);
+	private CommonsHttpOAuthConsumer httpOauthConsumer = new CommonsHttpOAuthConsumer(
+			consumerKey, consumerSecret);
 	public Dialog progressDialog;
 
 	@Override
@@ -62,20 +70,18 @@ public class MainActivity extends Activity {
 		if (!isOnline()) {
 			Toast.makeText(getApplicationContext(), "No internet connection",
 					Toast.LENGTH_LONG).show();
-		}
-		else{
-			
+		} else {
+
 			SharedPreferences settings = getBaseContext().getSharedPreferences(
 					"your_app_prefs", 0);
 			userKey = settings.getString("user_key", "");
 			userSecret = settings.getString("user_secret", "");
-			
-			if(userKey.equals("")){
+
+			if (userKey.equals("")) {
 				OpenOauth mt;
 				mt = new OpenOauth();
 				mt.execute();
-			}
-			else{
+			} else {
 				GetTimeLine mt;
 				mt = new GetTimeLine();
 				mt.execute();
@@ -109,19 +115,19 @@ public class MainActivity extends Activity {
 		}
 
 	}
-	
+
 	public void nextPageBtn_Click(View v) {
 		if (!isOnline()) {
 			Toast.makeText(getApplicationContext(), "No internet connection",
 					Toast.LENGTH_LONG).show();
 
 		} else {
-			
+
 			btnPreviousVis(true);
 			GetTimeLine mt;
 			mt = new GetTimeLine();
 			mt.execute();
-			
+
 		}
 
 	}
@@ -139,23 +145,22 @@ public class MainActivity extends Activity {
 		}
 
 	}
-	
-	public void btnPreviousVis(boolean b){
-		Button btnPrevious = (Button)findViewById(R.id.btnPrevious);
+
+	public void btnPreviousVis(boolean b) {
+		Button btnPrevious = (Button) findViewById(R.id.btnPrevious);
 		btnPrevious.setVisibility(View.VISIBLE);
-		if(b){
+		if (b) {
 			++page;
 			btnPrevious.setVisibility(View.VISIBLE);
 		} else {
-			if(page==2){
+			if (page == 2) {
 				--page;
 				btnPrevious.setVisibility(View.INVISIBLE);
-			}
-			else --page;
+			} else
+				--page;
 		}
 	}
-	
-	
+
 	class OpenOauth extends AsyncTask<Void, Void, Void> {
 
 		@Override
@@ -174,12 +179,14 @@ public class MainActivity extends Activity {
 		protected Void doInBackground(Void... v) {
 			try {
 				StrictMode.enableDefaults();
-				String authUrl = httpOauthprovider.retrieveRequestToken(httpOauthConsumer, CALLBACKURL);
+				String authUrl = httpOauthprovider.retrieveRequestToken(
+						httpOauthConsumer, CALLBACKURL);
 
-				 Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
-				 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				 intent.putExtra("Url", authUrl);
-				 startActivity(intent);
+				Intent intent = new Intent(getApplicationContext(),
+						LoginActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				intent.putExtra("Url", authUrl);
+				startActivity(intent);
 
 			} catch (Exception e) {
 				Log.w("oauth fail", e);
@@ -224,16 +231,13 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 
-			
 			GetTimeLine mt;
 			mt = new GetTimeLine();
 			mt.execute();
-			
+
 		}
 	}
 
-	
-	
 	class GetTimeLine extends AsyncTask<Void, Void, Void> {
 
 		@Override
@@ -244,80 +248,101 @@ public class MainActivity extends Activity {
 					"your_app_prefs", 0);
 			userKey = settings.getString("user_key", "");
 			userSecret = settings.getString("user_secret", "");
-			
+
 			Log.w("oauth fail", "key  " + userKey);
 			Log.w("oauth fail", "secret  " + userSecret);
-			
+
 			super.onPreExecute();
 		}
 
 		@Override
 		protected Void doInBackground(Void... p) {
-			
+
 			try {
 
 				DefaultHttpClient mClient = new DefaultHttpClient();
 				httpOauthConsumer.setTokenWithSecret(userKey, userSecret);
-				
-                Uri sUri = Uri.parse("http://api.twitter.com/1/statuses/home_timeline.json");
-                Uri.Builder builder = sUri.buildUpon();
-                
-//              builder.appendQueryParameter("since_id", null); 
-//              builder.appendQueryParameter("max_id", null);
-		        builder.appendQueryParameter("count", "20");
-                builder.appendQueryParameter("page", String.valueOf(page));
-                HttpGet get = new HttpGet(builder.build().toString());
 
-                httpOauthConsumer.sign(get);
-                String response = mClient.execute(get, new BasicResponseHandler());
-	            
-                JSONArray array = new JSONArray(response);
+				Uri sUri = Uri
+						.parse("http://api.twitter.com/1/statuses/home_timeline.json");
+				Uri.Builder builder = sUri.buildUpon();
 
-				SimpleDateFormat curFormater = new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy", Locale.ENGLISH); 
-				SimpleDateFormat postFormater = new SimpleDateFormat(" dd MMMM, HH:mm", Locale.ENGLISH);	
-				
+				// builder.appendQueryParameter("since_id", null);
+				// builder.appendQueryParameter("max_id", null);
+				builder.appendQueryParameter("count", "10");
+				builder.appendQueryParameter("page", String.valueOf(page));
+				HttpGet get = new HttpGet(builder.build().toString());
+
+				httpOauthConsumer.sign(get);
+				String response = mClient.execute(get,
+						new BasicResponseHandler());
+
+				JSONArray array = new JSONArray(response);
+
+				SimpleDateFormat curFormater = new SimpleDateFormat(
+						"EEE MMM dd HH:mm:ss ZZZZZ yyyy", Locale.ENGLISH);
+				SimpleDateFormat postFormater = new SimpleDateFormat(
+						" dd MMMM, HH:mm", Locale.ENGLISH);
+
 				details = new ArrayList<MessageDetails>();
+				
 				for (int i = 0; i < array.length(); i++) {
+					
+					
+
+					colors[0] = Color.parseColor("#DDEEF6");
+					colors[1] = Color.parseColor("#C0DEED");
+
+					String iconPath = array.getJSONObject(i)
+							.getJSONObject("user")
+							.getString("profile_image_url");
+					String name = array.getJSONObject(i).getJSONObject("user")
+							.getString("name");
+					Date dateObj = curFormater.parse(array.getJSONObject(i)
+							.getString("created_at"));
+					String newDateStr = postFormater.format(dateObj);
+					String desc = array.getJSONObject(i).getString("text");
 
 					
-					String name = array.getJSONObject(i).getJSONObject("user").getString("name");
-					Date dateObj = curFormater.parse(array.getJSONObject(i).getString("created_at")); 		 
-					String newDateStr = postFormater.format(dateObj); 
-					String desc = array.getJSONObject(i).getString("text");
-					
-					
+					URL url = new URL(iconPath);
+		            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		            connection.setDoInput(true);
+		            connection.connect();
+		            InputStream input = connection.getInputStream();
+		            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+		            
+
 					Detail = new MessageDetails();
-					
-					Detail.setIcon(R.drawable.ic_launcher);
+
+					Detail.setIcon(myBitmap);
 					Detail.setName(name);
-					Detail.setSub("Yeah MF");
 					Detail.setTime(newDateStr);
 					Detail.setDesc(desc);
-					
+					Detail.setColor(colors[i % 2]);
+					// Detail.setSub("Yeah MF");
+
 					details.add(Detail);
-					
+
 					Log.w("oauth fail", "get  " + name);
 				}
 
-				
 			} catch (Exception e) {
 
 			}
 			return null;
 		}
-		
+
 		@Override
 		protected void onPostExecute(Void result) {
 			MainActivity.this.progressDialog.dismiss();
 
-			msgList = (ListView) findViewById(R.id.listView1);			
-			msgList.setAdapter(new CustomAdapter(details, getBaseContext() ));
+			msgList = (ListView) findViewById(R.id.listView1);
+			// msgList.setBackgroundColor(Color.parseColor("#DDEEF6"));
+			msgList.setAdapter(new CustomAdapter(details, getBaseContext()));
 		}
 
 	}
 
-	
-	
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
@@ -346,12 +371,11 @@ public class MainActivity extends Activity {
 		}
 		return false;
 	}
-	
-	public void onBackPressed()
-	{	
-		finish();     
+
+	public void onBackPressed() {
+		finish();
 	}
 
+	
+
 }
-
-

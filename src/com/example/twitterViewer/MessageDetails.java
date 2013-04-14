@@ -1,11 +1,15 @@
 package com.example.twitterViewer;
 
+import android.graphics.Bitmap;
+
 public class MessageDetails {
-	int icon;
+	int color;
+	Bitmap icon;
 	String from;
 	String sub;
 	String desc;
 	String time;
+	
 
 	public String getName() {
 		return from;
@@ -23,12 +27,20 @@ public class MessageDetails {
 		this.sub = sub;
 	}
 
-	public int getIcon() {
+	public Bitmap getIcon() {
 		return icon;
 	}
 
-	public void setIcon(int icon) {
+	public void setIcon(Bitmap icon) {
 		this.icon = icon;
+	}
+	
+	public int getColor(){
+		return color;
+	}
+	
+	public void setColor(int color){
+		this.color = color;
 	}
 
 	public String getTime() {
