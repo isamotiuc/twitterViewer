@@ -26,13 +26,11 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -41,14 +39,14 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	String userKey;
-	String userSecret;
+	private String userKey;
+	private String userSecret;
 
-	ArrayList<MessageDetails> details = new ArrayList<MessageDetails>();
-	ListView msgList;
-	MessageDetails Detail;
-	int[] colors = new int[2];
-	int page = 1;
+	private ArrayList<MessageDetails> details = new ArrayList<MessageDetails>();
+	private ListView msgList;
+	private MessageDetails Detail;
+	private int[] colors = new int[2];
+	private int page = 1;
 
 	private String CALLBACKURL = "app://twitter";
 	private String consumerKey = "x46JM8cJFabpdUlftDRHJg";
@@ -78,12 +76,10 @@ public class MainActivity extends Activity {
 			userSecret = settings.getString("user_secret", "");
 
 			if (userKey.equals("")) {
-				OpenOauth mt;
-				mt = new OpenOauth();
+				OpenOauth mt= new OpenOauth();
 				mt.execute();
 			} else {
-				GetTimeLine mt;
-				mt = new GetTimeLine();
+				GetTimeLine mt= new GetTimeLine();
 				mt.execute();
 			}
 		}
@@ -96,8 +92,7 @@ public class MainActivity extends Activity {
 					Toast.LENGTH_LONG).show();
 
 		} else {
-			OpenOauth mt;
-			mt = new OpenOauth();
+			OpenOauth mt= new OpenOauth();
 			mt.execute();
 		}
 	}
@@ -109,8 +104,7 @@ public class MainActivity extends Activity {
 
 		} else {
 
-			GetTimeLine mt;
-			mt = new GetTimeLine();
+			GetTimeLine mt = new GetTimeLine();
 			mt.execute();
 		}
 
@@ -124,8 +118,7 @@ public class MainActivity extends Activity {
 		} else {
 
 			btnPreviousVis(true);
-			GetTimeLine mt;
-			mt = new GetTimeLine();
+			GetTimeLine mt= new GetTimeLine();
 			mt.execute();
 
 		}
@@ -139,8 +132,7 @@ public class MainActivity extends Activity {
 
 		} else {
 			btnPreviousVis(false);
-			GetTimeLine mt;
-			mt = new GetTimeLine();
+			GetTimeLine mt = new GetTimeLine();
 			mt.execute();
 		}
 
@@ -178,7 +170,6 @@ public class MainActivity extends Activity {
 		@Override
 		protected Void doInBackground(Void... v) {
 			try {
-				StrictMode.enableDefaults();
 				String authUrl = httpOauthprovider.retrieveRequestToken(
 						httpOauthConsumer, CALLBACKURL);
 
@@ -189,7 +180,8 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 
 			} catch (Exception e) {
-				Log.w("oauth fail", e);
+				Toast.makeText(getApplicationContext(), e.getMessage(),
+						Toast.LENGTH_LONG).show();
 			}
 			return null;
 		}
@@ -216,8 +208,8 @@ public class MainActivity extends Activity {
 				editor.putString("user_secret", userSecret);
 				editor.commit();
 
-				Log.w("oauth fail", "key  " + userKey);
-				Log.w("oauth fail", "secret  " + userSecret);
+//				Log.w("oauth fail", "key  " + userKey);
+//				Log.w("oauth fail", "secret  " + userSecret);
 
 			} catch (Exception e) {
 				Toast.makeText(getApplicationContext(), e.getMessage(),
@@ -231,8 +223,7 @@ public class MainActivity extends Activity {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 
-			GetTimeLine mt;
-			mt = new GetTimeLine();
+			GetTimeLine mt = new GetTimeLine();
 			mt.execute();
 
 		}
@@ -249,8 +240,8 @@ public class MainActivity extends Activity {
 			userKey = settings.getString("user_key", "");
 			userSecret = settings.getString("user_secret", "");
 
-			Log.w("oauth fail", "key  " + userKey);
-			Log.w("oauth fail", "secret  " + userSecret);
+//			Log.w("oauth fail", "key  " + userKey);
+//			Log.w("oauth fail", "secret  " + userSecret);
 
 			super.onPreExecute();
 		}
@@ -266,19 +257,15 @@ public class MainActivity extends Activity {
 				Uri sUri = Uri
 						.parse("http://api.twitter.com/1/statuses/home_timeline.json");
 				Uri.Builder builder = sUri.buildUpon();
-
-				// builder.appendQueryParameter("since_id", null);
-				// builder.appendQueryParameter("max_id", null);
-				builder.appendQueryParameter("count", "10");
+				
+				builder.appendQueryParameter("count", "20");
 				builder.appendQueryParameter("page", String.valueOf(page));
+				
 				HttpGet get = new HttpGet(builder.build().toString());
-
 				httpOauthConsumer.sign(get);
 				String response = mClient.execute(get,
 						new BasicResponseHandler());
-
 				JSONArray array = new JSONArray(response);
-
 				SimpleDateFormat curFormater = new SimpleDateFormat(
 						"EEE MMM dd HH:mm:ss ZZZZZ yyyy", Locale.ENGLISH);
 				SimpleDateFormat postFormater = new SimpleDateFormat(
@@ -303,7 +290,7 @@ public class MainActivity extends Activity {
 					String newDateStr = postFormater.format(dateObj);
 					String desc = array.getJSONObject(i).getString("text");
 
-					
+					//get Icon
 					URL url = new URL(iconPath);
 		            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		            connection.setDoInput(true);
@@ -313,21 +300,21 @@ public class MainActivity extends Activity {
 		            
 
 					Detail = new MessageDetails();
-
 					Detail.setIcon(myBitmap);
 					Detail.setName(name);
 					Detail.setTime(newDateStr);
 					Detail.setDesc(desc);
 					Detail.setColor(colors[i % 2]);
-					// Detail.setSub("Yeah MF");
 
 					details.add(Detail);
 
-					Log.w("oauth fail", "get  " + name);
+//					Log.w("oauth fail", "get  " + name);
 				}
 
 			} catch (Exception e) {
 
+				Toast.makeText(getApplicationContext(), e.getMessage(),
+						Toast.LENGTH_LONG).show();
 			}
 			return null;
 		}
@@ -337,7 +324,6 @@ public class MainActivity extends Activity {
 			MainActivity.this.progressDialog.dismiss();
 
 			msgList = (ListView) findViewById(R.id.listView1);
-			// msgList.setBackgroundColor(Color.parseColor("#DDEEF6"));
 			msgList.setAdapter(new CustomAdapter(details, getBaseContext()));
 		}
 
@@ -355,8 +341,7 @@ public class MainActivity extends Activity {
 			String verifier = uri
 					.getQueryParameter(oauth.signpost.OAuth.OAUTH_VERIFIER);
 
-			GetUserKeys mt;
-			mt = new GetUserKeys();
+			GetUserKeys mt= new GetUserKeys();
 			mt.execute(verifier);
 		} else {
 			// Do something if the callback comes from elsewhere
@@ -375,7 +360,5 @@ public class MainActivity extends Activity {
 	public void onBackPressed() {
 		finish();
 	}
-
-	
 
 }

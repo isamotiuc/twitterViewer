@@ -2,7 +2,6 @@ package com.example.twitterViewer;
 
 import java.util.ArrayList;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class CustomAdapter extends BaseAdapter {
-
-	public Dialog progressDialog;
 	
 	private ArrayList<MessageDetails> _data;
 	Context _c;
@@ -53,7 +50,7 @@ public class CustomAdapter extends BaseAdapter {
 		TextView fromView = (TextView) v.findViewById(R.id.From);
 		TextView descView = (TextView) v.findViewById(R.id.description);
 		TextView timeView = (TextView) v.findViewById(R.id.time);
-//		TextView subView = (TextView) v.findViewById(R.id.subject);
+
 
 		MessageDetails msg = _data.get(position);
 		
@@ -62,8 +59,7 @@ public class CustomAdapter extends BaseAdapter {
 		timeView.setText(msg.time);
 		v.setBackgroundColor(msg.color);
 		image.setImageBitmap(msg.icon);
-//		subView.setText("Subject: " + msg.sub);
-//		image.setImageResource(msg.icon);
+
 
 		return v;
 	}

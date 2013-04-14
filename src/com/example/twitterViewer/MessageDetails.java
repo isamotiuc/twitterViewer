@@ -19,13 +19,6 @@ public class MessageDetails {
 		this.from = from;
 	}
 
-	public String getSub() {
-		return sub;
-	}
-
-	public void setSub(String sub) {
-		this.sub = sub;
-	}
 
 	public Bitmap getIcon() {
 		return icon;
