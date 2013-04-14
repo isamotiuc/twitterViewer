@@ -11,15 +11,16 @@
 
 	    <ImageView
 	        android:id="@+id/icon"
-	        android:layout_width="40dp"
-	        android:layout_height="40dp" />
+	        android:layout_width="60dp"
+	        android:layout_height="60dp" />
 
 	    <TextView
 	        android:id="@+id/From"
 	        android:layout_width="wrap_content"
-	        android:layout_height="40dp"
+	        android:layout_height="60dp"
 	        android:layout_gravity="center"
 	        android:paddingLeft="40dp"
+	        android:paddingTop="15dp"
 	        android:textAppearance="?android:attr/textAppearanceMedium"
 	        android:textColor="#003366"
 	        android:textSize="20sp" />
@@ -29,6 +30,7 @@
 	    android:id="@+id/description"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
+	    android:paddingLeft="5dp"
 	    android:paddingTop="10dp" />
 
 	<TextView
