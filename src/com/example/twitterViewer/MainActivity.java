@@ -1,9 +1,5 @@
 package com.example.twitterViewer;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import oauth.signpost.OAuthProvider;
 import oauth.signpost.basic.DefaultOAuthProvider;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
@@ -12,8 +8,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -40,7 +34,7 @@ public class MainActivity extends Activity {
 	private CommonsHttpOAuthConsumer httpOauthConsumer = new CommonsHttpOAuthConsumer(
 			consumerKey, consumerSecret);
 	
-	public Dialog progressDialog;
+	private Dialog progressDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +55,7 @@ public class MainActivity extends Activity {
 			if (userKey.equals("")) {
 				new OpenOauth(this,httpOauthConsumer,httpOauthprovider,progressDialog).execute();
 			} else {
-				new GetTimeLine(this,httpOauthConsumer,progressDialog,builderUri(),msgList).execute();
+				new GetTimeLine(this,httpOauthConsumer,progressDialog,page,msgList).execute();
 
 			}
 		}
@@ -84,7 +78,7 @@ public class MainActivity extends Activity {
 					Toast.LENGTH_LONG).show();
 
 		} else {
-			new GetTimeLine(this,httpOauthConsumer,progressDialog,builderUri(),msgList).execute();
+			new GetTimeLine(this,httpOauthConsumer,progressDialog,page,msgList).execute();
 
 		}
 
@@ -98,7 +92,7 @@ public class MainActivity extends Activity {
 		} else {
 
 			btnPreviousVis(true);
-			new GetTimeLine(this,httpOauthConsumer,progressDialog,builderUri(),msgList).execute();
+			new GetTimeLine(this,httpOauthConsumer,progressDialog,page,msgList).execute();
 
 
 		}
@@ -112,7 +106,7 @@ public class MainActivity extends Activity {
 
 		} else {
 			btnPreviousVis(false);
-			new GetTimeLine(this,httpOauthConsumer,progressDialog,builderUri(),msgList).execute();
+			new GetTimeLine(this,httpOauthConsumer,progressDialog,page,msgList).execute();
 
 		}
 
@@ -134,32 +128,6 @@ public class MainActivity extends Activity {
 	}
 
 
-	public Bitmap getIconFromUrl(String iconPath){
-		try {
-			URL url = new URL(iconPath);
-	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-	        connection.setDoInput(true);
-	        connection.connect();
-	        InputStream input = connection.getInputStream();
-	        Bitmap myBitmap = BitmapFactory.decodeStream(input);
-	        return myBitmap;
-		} catch (Exception e) {
-			// TODO: handle exception
-			return null;
-		}
-		
-	}
-	
-	public Uri.Builder builderUri(){
-		
-		Uri sUri = Uri.parse("http://api.twitter.com/1/statuses/home_timeline.json");
-		Uri.Builder builder = sUri.buildUpon();
-		
-		builder.appendQueryParameter("count", "20");
-		builder.appendQueryParameter("page", String.valueOf(page));
-		
-		return builder;
-	}
 	
 	@Override
 	protected void onNewIntent(Intent intent) {
@@ -171,14 +139,13 @@ public class MainActivity extends Activity {
 		if (uri != null && uri.toString().startsWith(CALLBACKURL)) {
 			if(uri.getQueryParameter(oauth.signpost.OAuth.OAUTH_VERIFIER)!=null){
 				String verifier = uri.getQueryParameter(oauth.signpost.OAuth.OAUTH_VERIFIER);
-				new GetUserKeys(this,httpOauthConsumer,httpOauthprovider,verifier).execute();		
+				new GetUserKeys(this,httpOauthConsumer,httpOauthprovider,verifier, msgList,progressDialog).execute();		
 			}
 			
 		} else {
-			// Do something if the callback comes from elsewhere
+			// callback comes from elsewhere
 		}
-		
-		//new GetTimeLine(this,httpOauthConsumer,progressDialog,builderUri(),msgList).execute();
+
 	}
 
 	public boolean isOnline() {

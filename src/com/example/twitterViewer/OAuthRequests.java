@@ -52,10 +52,7 @@ class OpenOauth extends AsyncTask<Void, Void, Void> {
 		super.onPreExecute();
 	}
 
-	@Override
-	protected void onPostExecute(Void result) {
-		progressDialog.dismiss();
-	}
+	
 
 	@Override
 	protected Void doInBackground(Void... v) {
@@ -75,6 +72,11 @@ class OpenOauth extends AsyncTask<Void, Void, Void> {
 		}
 		return null;
 	}
+	
+	@Override
+	protected void onPostExecute(Void result) {
+		progressDialog.dismiss();
+	}
 
 }
 
@@ -84,12 +86,17 @@ class GetUserKeys extends AsyncTask<Void, Void, Boolean> {
 	private OAuthProvider httpOauthprovider;
 	private CommonsHttpOAuthConsumer httpOauthConsumer;
 	private String verifier;
+	private ListView msgList;
+	private Dialog progressDialog;
+
 	
-	public GetUserKeys(Context context,CommonsHttpOAuthConsumer httpOauthConsumer,OAuthProvider httpOauthprovider,String verifier) {
+	public GetUserKeys(Context context,CommonsHttpOAuthConsumer httpOauthConsumer,OAuthProvider httpOauthprovider,String verifier,ListView msgList,Dialog progressDialog) {
 		this.context = context;
 		this.httpOauthConsumer = httpOauthConsumer;
 		this.httpOauthprovider = httpOauthprovider;
 		this.verifier = verifier;
+		this.msgList = msgList;
+		this.progressDialog = progressDialog;
 	}
 	
 	@Override
@@ -109,9 +116,6 @@ class GetUserKeys extends AsyncTask<Void, Void, Boolean> {
 			editor.putString("user_secret", userSecret);
 			editor.commit();
 
-//			Log.w("oauth fail", "key  " + userKey);
-//			Log.w("oauth fail", "secret  " + userSecret);
-
 		} catch (Exception e) {
 			Toast.makeText(context, e.getMessage(),
 					Toast.LENGTH_LONG).show();
@@ -124,7 +128,7 @@ class GetUserKeys extends AsyncTask<Void, Void, Boolean> {
 	protected void onPostExecute(Boolean result) {
 		super.onPostExecute(result);
 		
-	//	new GetTimeLine(this,httpOauthConsumer,progressDialog,builderUri(),msgList).execute();
+		new GetTimeLine(context,httpOauthConsumer,progressDialog,1,msgList).execute();
 		
 
 	}
@@ -136,17 +140,17 @@ class GetTimeLine extends AsyncTask<Void, Void, Void> {
 	private String userKey;
 	private String userSecret;
 	private Dialog progressDialog;
-	private Uri.Builder uriBuilder;
 	private int[] colors = new int[2];
 	private MessageDetails Detail;
 	private ArrayList<MessageDetails> details = new ArrayList<MessageDetails>();
 	private ListView msgList;
+	private int page;
 	
-	public GetTimeLine(Context context,CommonsHttpOAuthConsumer httpOauthConsumer,Dialog progressDialog, Uri.Builder uriBuilder, ListView msgList) {
+	public GetTimeLine(Context context,CommonsHttpOAuthConsumer httpOauthConsumer,Dialog progressDialog, int page, ListView msgList) {
 		this.context = context;
 		this.httpOauthConsumer = httpOauthConsumer;
 		this.progressDialog = progressDialog;
-		this.uriBuilder = uriBuilder;
+		this.page = page;
 		this.msgList = msgList;
 	}
 	
@@ -159,9 +163,6 @@ class GetTimeLine extends AsyncTask<Void, Void, Void> {
 		userKey = settings.getString("user_key", "");
 		userSecret = settings.getString("user_secret", "");
 
-//		Log.w("oauth fail", "key  " + userKey);
-//		Log.w("oauth fail", "secret  " + userSecret);
-
 		super.onPreExecute();
 	}
 
@@ -173,17 +174,22 @@ class GetTimeLine extends AsyncTask<Void, Void, Void> {
 			DefaultHttpClient mClient = new DefaultHttpClient();
 			httpOauthConsumer.setTokenWithSecret(userKey, userSecret);
 		
-			HttpGet get = new HttpGet(uriBuilder.build().toString());
+			//Builder Parameters
+			Uri sUri = Uri.parse("http://api.twitter.com/1/statuses/home_timeline.json");
+			Uri.Builder builder = sUri.buildUpon();
+			builder.appendQueryParameter("count", "20");
+			builder.appendQueryParameter("page", String.valueOf(page));
+			
+			HttpGet get = new HttpGet(builder.build().toString());
 			httpOauthConsumer.sign(get);
 			String response = mClient.execute(get,new BasicResponseHandler());		
 			JSONArray array = new JSONArray(response);
 			
+			//Format Date
 			SimpleDateFormat curFormater = new SimpleDateFormat(
 					"EEE MMM dd HH:mm:ss ZZZZZ yyyy", Locale.ENGLISH);
 			SimpleDateFormat postFormater = new SimpleDateFormat(
 					" dd MMMM, HH:mm", Locale.ENGLISH);
-
-			details = new ArrayList<MessageDetails>();
 			
 			colors[0] = Color.parseColor("#DDEEF6");
 			colors[1] = Color.parseColor("#C0DEED");
@@ -196,6 +202,8 @@ class GetTimeLine extends AsyncTask<Void, Void, Void> {
 				String newDateStr = postFormater.format(dateObj);
 				String desc = array.getJSONObject(i).getString("text");
 
+				
+				//get Icon
 				URL url = new URL(iconPath);
 		        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		        connection.setDoInput(true);
@@ -212,7 +220,6 @@ class GetTimeLine extends AsyncTask<Void, Void, Void> {
 
 				details.add(Detail);
 
-//				Log.w("oauth fail", "get  " + name);
 			}
 
 		} catch (Exception e) {
