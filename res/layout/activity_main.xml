@@ -7,7 +7,7 @@
 
     <ListView
         android:id="@+id/listView1"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/RelativeLa"
         android:layout_alignParentLeft="true" >
@@ -17,7 +17,7 @@
     <RelativeLayout
         android:id="@+id/RelativeLa"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="43dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
