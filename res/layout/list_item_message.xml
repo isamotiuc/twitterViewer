@@ -12,6 +12,7 @@
 	    <ImageView
 	        android:id="@+id/icon"
 	        android:layout_width="60dp"
+	        android:paddingLeft="5dp"
 	        android:layout_height="60dp" />
 
 	    <TextView
